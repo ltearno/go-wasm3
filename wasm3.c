@@ -28,7 +28,6 @@ int findFunction(IM3Function * o_function, IM3Runtime i_runtime, const char * co
     {
         if (i_module->name)
         {
-            printf("MODULE %s %x\n", i_module->name, i_module);
             if (strcmp (i_module->name, i_moduleName) == 0)
             {
                 for (u32 i = 0; i < i_module->numFunctions; ++i)
