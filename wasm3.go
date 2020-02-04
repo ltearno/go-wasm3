@@ -63,7 +63,7 @@ type ResultT C.M3Result
 type WasiIoVec C.wasi_iovec_t
 
 // CallbackFunction is the signature for callbacks
-type CallbackFunction func(runtime RuntimeT, sp unsafe.Pointer, mem unsafe.Pointer)
+type CallbackFunction func(runtime RuntimeT, sp unsafe.Pointer, mem unsafe.Pointer) int
 
 var slotsToCallbacks = make(map[int]CallbackFunction)
 
@@ -78,8 +78,8 @@ func (w *WasiIoVec) GetBufLen() int {
 }
 
 //export dynamicFunctionWrapper
-func dynamicFunctionWrapper(runtime RuntimeT, _sp unsafe.Pointer, _mem unsafe.Pointer, slot uint64) {
-	slotsToCallbacks[int(slot)](runtime, _sp, _mem)
+func dynamicFunctionWrapper(runtime RuntimeT, _sp unsafe.Pointer, _mem unsafe.Pointer, slot uint64) int {
+	return slotsToCallbacks[int(slot)](runtime, _sp, _mem)
 }
 
 var (

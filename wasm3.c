@@ -98,8 +98,8 @@ u8* get_allocated_memory(IM3Runtime i_runtime) {
 }
 
 const void * native_dynamicFunctionWrapper(IM3Runtime runtime, uint64_t * _sp, void * _mem, uint64_t cookie) {
-    dynamicFunctionWrapper(runtime, _sp, _mem, cookie);
-    return m3Err_none; 
+    int code = dynamicFunctionWrapper(runtime, _sp, _mem, cookie);
+    return code == 0 ? m3Err_none : m3Err_trapExit;
 }
 
 int nextSlot = 0;
