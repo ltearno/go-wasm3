@@ -28,6 +28,7 @@ void* m3ApiOffsetToPtr(void* offset, void* _mem);
 const char* function_get_import_module(IM3Function i_function);
 const char* function_get_import_field(IM3Function i_function);
 int findFunction(IM3Function * o_function, IM3Runtime i_runtime, const char * const i_moduleName, const char * const i_functionName);
+u8 function_get_arg_type(IM3Function i_function, int index);
 
 typedef struct wasi_iovec_t
 {
@@ -55,6 +56,9 @@ type ModuleT C.IM3Module
 
 // FunctionT is an alias for IM3Function
 type FunctionT C.IM3Function
+
+// FuncTypeT is an alias for IM3FuncType
+type FuncTypeT C.IM3FuncType
 
 // ResultT is an alias for M3Result
 type ResultT C.M3Result
@@ -90,9 +94,10 @@ var (
 
 // Config holds the runtime and environment configuration
 type Config struct {
-	Environment *Environment
-	StackSize   uint
-	EnableWASI  bool
+	Environment    *Environment
+	StackSize      uint
+	EnableWASI     bool
+	EnableSpecTest bool
 }
 
 // Runtime wraps a WASM3 runtime
@@ -169,9 +174,8 @@ func (r *Runtime) LoadModule(module *Module) (*Module, error) {
 	if result != nil {
 		return nil, errLoadModule
 	}
-	result = C.m3_LinkSpecTest(r.Ptr().modules)
-	if result != nil {
-		return nil, errors.New("LinkSpecTest failed")
+	if r.cfg.EnableSpecTest {
+		C.m3_LinkSpecTest(r.Ptr().modules)
 	}
 	if r.cfg.EnableWASI {
 		C.m3_LinkWASI(r.Ptr().modules)
@@ -301,6 +305,28 @@ func (m *Module) GetFunction(index uint) (*Function, error) {
 		ptr:  (FunctionT)(ptr),
 		Name: name,
 	}, nil
+}
+
+func (f *Function) GetReturnType() uint8 {
+	return uint8(f.ptr.funcType.returnType)
+}
+
+func (f *Function) GetNumArgs() uint32 {
+	return uint32(f.ptr.funcType.numArgs)
+}
+
+func (f *Function) GetArgType(index int) uint8 {
+	return uint8(C.function_get_arg_type(f.ptr, C.int(index)))
+}
+
+func (f *Function) GetSignature() string {
+	// TODO this is completely wrong but should work for basic functions for the moment...
+	s := "i("
+	for i := uint32(0); i < f.GetNumArgs(); i++ {
+		s += "i"
+	}
+	s += ")"
+	return s
 }
 
 // GetFunctionByName is a helper to lookup functions by name

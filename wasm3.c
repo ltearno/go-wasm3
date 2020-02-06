@@ -60,6 +60,10 @@ const char* function_get_import_field(IM3Function i_function) {
     return i_function->import.fieldUtf8;
 }
 
+u8 function_get_arg_type(IM3Function i_function, int index) {
+    return i_function->funcType->argTypes[index];
+}
+
 int call(IM3Function i_function, uint32_t i_argc, int i_argv[]) {
 	int result = 0;
 	IM3Module module = i_function->module;
