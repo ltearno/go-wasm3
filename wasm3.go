@@ -267,6 +267,14 @@ func (r *Runtime) ParseModule(wasmBytes []byte) (*Module, error) {
 	return r.cfg.Environment.ParseModule(wasmBytes)
 }
 
+func (r *Runtime) PrintRuntimeInfo() {
+	C.m3_PrintRuntimeInfo(r.Ptr())
+
+	C.m3_PrintM3Info()
+
+	C.m3_PrintProfilerInfo()
+}
+
 // NewRuntime initializes a new runtime
 // TODO: nativeStackInfo is passed as NULL
 func NewRuntime(cfg *Config) *Runtime {
